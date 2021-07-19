@@ -4,9 +4,9 @@ services:
   elasticsearch:
     container_name: elasticsearch
     restart: always
-    build: elasticsearch/
+    build: ElasticSearch/
     volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./ElasticSearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
       - node.name=elasticsearch
       - discovery.seed_hosts=elasticsearch
@@ -30,7 +30,7 @@ services:
         retries: 60
 
   web:
-    build: web/
+    build: Web/
     restart: always
     container_name: web
     ports:
