@@ -1,6 +1,5 @@
 From python:3.7
-COPY . /Flask-WebPage
-WORKDIR /Flask-WebPage
+COPY . .
 RUN pip install -r requirements.txt
-EXPOSE 5000
+EXPOSE 5000/tcp
 ENTRYPOINT ["python", "app.py"]
