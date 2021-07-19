@@ -3,8 +3,8 @@ version: '3'
 services:
   elasticsearch:
     container_name: elasticsearch
-    restart: always
     build: ElasticSearch/
+    restart: always
     volumes:
       - ./ElasticSearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     environment:
