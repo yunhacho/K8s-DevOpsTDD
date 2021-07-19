@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>OSP-Final-Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+    <script>
+      $(document).ready(function () {
+        bsCustomFileInput.init()
+      })
+    </script>
+    <link type="text/css" rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+        <a class="navbar-brand" href="#">Web Page Analysis</a>
+    </nav>
+    <!-- Styles -->
+    <link type="text/css" rel="stylesheet" href="{{url_for('static', filename='css/chartstyle.css')}}">
+    <!-- Resources -->
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+    <!-- Chart code -->
+    <script type = 'text/javascript' src = "{{url_for('static', filename='js/tfidfchart.js')}}"></script>
+    <script type = 'text/javascript' src = "{{url_for('static', filename='js/similaritychart.js')}}"></script>
+    <!-- HTML -->
+    <div class ="container-fluid">
+      <form class="offset-md-2 mt-5" method = "POST" enctype = "multipart/form-data" id="urlForm">
+        <div class="form-row">
+          <div class="form-group col-md-8">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <button id = "menu" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Single URL</button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" onclick='changeFormSingleURL(); return false' selected="selected">Single URL</a>
+                  <div role="separator" class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#" onClick='changeFormFile(); return false'>File</a>
+                </div>
+              </div>
+              <input name = "url" id = "inputArea" type="text" class="form-control" placeholder="Single URL을 입력해주세요.">
+              <div id="fileGroup" class="custom-file" hidden>
+                <input name = "file" type="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label" for="customFile">파일을 선택하거나 끌어당겨 넣어주세요.</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group col-md-4">
+            <button type="submit" class="btn btn-primary" id= "submitBtn">Enter</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id = "crawlingContainer" class = "container-lg" hidden >
+      <h2 class = "mb-3">크롤링 상태표</h2>
+      <table width = "100%" class="table table-bordered table-hover table-striped">
+        <caption>Crawling Status</caption>
+        <thead class="thead-light">
+          <tr>
+            <th style="width: 10%" scope="col" class = "text-center align-middle">번호</th>
+            <th style="width: 35%" scope="col" class = "text-center align-middle">URL</th>
+            <th style="width: 10%" scope="col" class = "text-center align-middle">상태</th>
+          </tr>
+        </thead>
+        <tbody id = "crawlingList">
+        </tbody>
+      </table>
+    </div>
+    <!-- Modal -->
+    <div class='modal fade bs-example-modal-lg' id='tfidfModal' tabindex='-1' role='dialog' aria-labelledby='tfidfModalLabel' aria-hidden='true'>
+      <div class='modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='exampleModalLabel'>단어 분석</h5>
+            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+              <span aria-hidden='true'>&times;</span>
+            </button>
+          </div>
+          <div class='modal-body'>
+            <table width = "100%" class="table table-bordered table-hover table-striped">
+              <caption> Top 10 List</caption>
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 50px; text-align: center;"> Top Rank</th>
+                  <th scope="col" style="width: 200px; text-align: center;">Word</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >1</th>
+                  <td id = "topWord1" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >2</th>
+                  <td id = "topWord2" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >3</th>
+                  <td id = "topWord3" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >4</th>
+                  <td id = "topWord4" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >5</th>
+                  <td id = "topWord5" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >6</th>
+                  <td id = "topWord6" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >7</th>
+                  <td id = "topWord7" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >8</th>
+                  <td id = "topWord8" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >9</th>
+                  <td id = "topWord9" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >10</th>
+                  <td id = "topWord10" scope="row" style="text-align: center;"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="chartdiv"></div>
+          </div>
+          <div class='modal-footer'>
+            <button type='button' class='btn btn-secondary' data-dismiss='modal'>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class='modal fade bs-example-modal-lg' id='similarityModal' tabindex='-1' role='dialog' aria-labelledby='similarityModalLabel' aria-hidden='true'>
+      <div class='modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='exampleModalLabel'>유사도 분석</h5>
+            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+              <span aria-hidden='true'>&times;</span>
+            </button>
+          </div>
+          <div class='modal-body'>
+            <table width = "100%" class="table table-bordered table-hover table-striped">
+              <caption> Top 3 List</caption>
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 50px; text-align: center;"> Top Rank</th>
+                  <th scope="col" style="width: 200px; text-align: center;">URL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >1</th>
+                  <td id = "cosineURL1" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >2</th>
+                  <td id = "cosineURL2" scope="row" style="text-align: center;"></td>
+                </tr>
+                <tr> 
+                  <th scope="row"  style="text-align: center;" >3</th>
+                  <td id = "cosineURL3" scope="row" style="text-align: center;"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="chartdiv2"></div>
+          </div>
+          <div class='modal-footer'>
+            <button type='button' class='btn btn-secondary' data-dismiss='modal'>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class='modal fade bs-example-modal-lg' id='wordCloudModal' tabindex='-1' role='dialog' aria-labelledby='wordCloudModalLabel' aria-hidden='true'>
+      <div class='modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl'>
+        <div class='modal-content'>
+          <div class='modal-header'>
+            <h5 class='modal-title' id='exampleModalLabel'>Word Cloud</h5>
+            <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+              <span aria-hidden='true'>&times;</span>
+            </button>
+          </div>
+          <div class='modal-body'>
+            <div class='center-block text-center'>
+              <div id='imgSpinner' class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <img class='img-responsive center-block' id="wordcloudImage" src='' alt='word cloud' width='500' height='600'>
+            </div>
+          </div>
+          <div class='modal-footer'>
+            <button type='button' class='btn btn-secondary' data-dismiss='modal'>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-lg">
+      <h2 class = "mb-3">오픈소스 프로젝트 분석 리스트</h2>
+      <table width = "100%" class="table table-bordered table-hover table-striped">
+        <caption>Analysis List</caption>
+        <thead class="thead-light">
+          <tr>
+            <th style="width: 10%" scope="col" class = "text-center align-middle">번호</th>
+            <th style="width: 35%" scope="col" class = "text-center align-middle">URL</th>
+            <th style="width: 10%" scope="col" class = "text-center align-middle">전체 단어수</th>
+            <th style="width: 10%" scope="col" class = "text-center align-middle">처리시간</th>
+            <th style="width: 35%" scope="col" class = "text-center align-middle">처리</th>
+          </tr>
+        </thead>
+        <tbody id = "crawling-body">
+        </tbody>
+      </table>
+      <button id = 'csvDownBtn' class='downloadBtn' style='width:100%' disabled><i class='fa fa-download'></i> CSV로 다운받기</button>
+    </div>
+  <script type = 'text/javascript' src = "{{url_for('static', filename='js/event.js')}}"></script>
+  <script type = 'text/javascript' src = "{{url_for('static', filename='js/formChange.js')}}"></script>
+</body>
+</html>
