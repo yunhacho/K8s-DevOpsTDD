@@ -3,6 +3,7 @@ version: '3'
 services:
   elasticsearch:
     container_name: elasticsearch
+    restart: always
     build: elasticsearch/
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
@@ -11,6 +12,7 @@ services:
       - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=elasticsearch
       - cluster.name=docker-cluster
+      - network.host=0.0.0.0
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -28,11 +30,13 @@ services:
         retries: 60
 
   web:
-    build: ./web
+    build: web/
     restart: always
     container_name: web
     ports:
       - 5000:5000
+    networks:
+      - elastic
     environment:
       PYTHONUNBUFFERED: 0
       ELASTICSEARCH_URL: "http://elasticsearch:9200"
@@ -42,3 +46,4 @@ services:
 networks:
     elastic:
         driver: bridge
+
