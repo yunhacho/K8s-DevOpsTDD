@@ -18,9 +18,8 @@ from py_pkg.crawling import Crawling
 from py_pkg.cosinesimilarity import Url_Similarity
 from py_pkg.dbtocsv import ToCsv
 
-es_host='elasticsearch'
 es_port='9200'
-#es_host=os.environ[]
+es_host=os.environ['ELASTICSEARCH_URL']
 app = Flask(__name__)
 
 @app.route('/')
