@@ -20,6 +20,7 @@ from py_pkg.dbtocsv import ToCsv
 
 es_host='elasticsearch'
 es_port='9200'
+#es_host=os.environ[]
 app = Flask(__name__)
 
 @app.route('/')

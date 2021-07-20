@@ -15,11 +15,11 @@ import time
 
 
 
-class Crawling() :
+class Crawling():
 	def __init__(self, input_url,id,es_host,es_port):
 		self.__input_url = input_url
-		self.__id = id
-		self.es = Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
+		self.__id =id
+		self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
 		self.__words = []
 		self.__frequencies = []
 		self.__word_d = {}
@@ -114,11 +114,6 @@ class Crawling() :
 		print(res)
 		return dic2
     
-
-    
-
-
-
 
 if __name__ == "__main__":
 	
