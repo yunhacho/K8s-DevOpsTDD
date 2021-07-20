@@ -1,0 +1,16 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: elasticsearch-pv-volume
+  namespace: develop
+  labels:
+    type: local
+spec:
+  storageClassName: es-storage
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/usr/share/elasticsearch/data"
+
