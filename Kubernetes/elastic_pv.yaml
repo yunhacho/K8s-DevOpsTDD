@@ -1,14 +1,29 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: elasticsearch-pv-volume
+  name: es-dev-pv-volume
   labels:
     type: local
 spec:
-  storageClassName: es-storage
+  storageClassName: es-dev-storage
   capacity:
     storage: 3Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/usr/share/elasticsearch/data"
+    path: "/usr/share/elasticsearch/dev/data"
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: es-deploy-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: es-deploy-storage
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/usr/share/elasticsearch/deploy/data"
