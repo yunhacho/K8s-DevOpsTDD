@@ -1,0 +1,16 @@
+node {
+     stage('Clone repository') {
+         checkout scm
+     }
+     stage('Build image') {
+         app = docker.build("jyh5530/web-analysis")
+     }
+     stage('Push image') {
+         docker.withRegistry('https://registry.hub.docker.com', 'dockerhubid') {
+             app.push("${env.BUILD_NUMBER}")
+             app.push("latest")
+         }
+     }
+ }
+
+
