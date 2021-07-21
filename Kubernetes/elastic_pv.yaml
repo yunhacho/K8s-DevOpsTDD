@@ -12,7 +12,7 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/usr/share/elasticsearch/dev/data"
-
+---
 kind: PersistentVolume
 apiVersion: v1
 metadata:
