@@ -2,7 +2,6 @@ kind: PersistentVolume
 apiVersion: v1
 metadata:
   name: elasticsearch-pv-volume
-  namespace: develop
   labels:
     type: local
 spec:
@@ -13,4 +12,3 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/usr/share/elasticsearch/data"
-
