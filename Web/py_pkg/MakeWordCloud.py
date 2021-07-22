@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from elasticsearch import Elasticsearch
 
 class Word_Cloud():
-    def __init__(self, url, es_host, es_port):
+    def __init__(self, url, es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
         self.url=url
         self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
         self.word_d={}

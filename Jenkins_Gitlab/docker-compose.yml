@@ -10,8 +10,6 @@ services:
     volumes:
       - "/home/jenkins/jenkins_home:/var/jenkins_home"
       - "//var/run/docker.sock:/var/run/docker.sock"
-    command:
-      - "chmod 666 var/run/docker.sock"
   gitlab:
     image: "gitlab/gitlab-ce:latest"
     container_name: gitlab

@@ -6,7 +6,7 @@ import numpy as np
 
 class Url_Similarity():
     
-    def __init__(self, url, es_host, es_port):
+    def __init__(self, url, es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
         self.url=url
         self.id=0
         self.size=0
@@ -84,10 +84,8 @@ class Url_Similarity():
 
 if __name__ =="__main__":
 
-        es_host="127.0.0.1"
-        es_port="9200"
         url = "http://cassandra.apache.org/"
-        URL = Url_Similarity(url, es_host, es_port)
+        URL = Url_Similarity(url)
         for tup in URL.GetTop3():
              print("url: %-30s\tCosineSimilarity: %.10f" %(tup[0], tup[1]))
 

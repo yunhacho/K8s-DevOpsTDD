@@ -7,10 +7,21 @@ node {
      }
      stage('Push image') {
          docker.withRegistry('https://registry.hub.docker.com', 'dockerhubid') {
-             app.push("${env.BUILD_NUMBER}")
+             //app.push("${env.BUILD_NUMBER}")
              app.push("latest")
          }
      }
+
+     /*stage('Kubernetes deploy') {
+         //kubernetesDeploy(kubeconfigId: 'kubeconfig')
+         kubernetesDeploy kubeconfigId: 'kubeconfig'
+         sh "/usr/local/bin/kubectl  --kubeconfig=/root/kube-config.yaml get namespace"
+         //sh "/usr/local/bin/helm --kubeconfig=/root/kube-config.yaml install cdtest github-test/test --set service.nodePort=35000 -n dev"
+     }*/
+
+     stage('Complete') {
+         sh "echo 'The end'"
+    }
  }
 
 

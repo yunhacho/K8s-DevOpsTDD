@@ -1,6 +1,21 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
+  name: es-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: es-storage
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/usr/share/elasticsearch/data"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
   name: es-dev-pv-volume
   labels:
     type: local
@@ -12,18 +27,3 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/usr/share/elasticsearch/dev/data"
----
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: es-deploy-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: es-deploy-storage
-  capacity:
-    storage: 3Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/usr/share/elasticsearch/deploy/data"

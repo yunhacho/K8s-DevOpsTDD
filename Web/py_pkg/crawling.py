@@ -16,7 +16,7 @@ import time
 
 
 class Crawling():
-	def __init__(self, input_url,id,es_host,es_port):
+	def __init__(self, input_url,id,es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
 		self.__input_url = input_url
 		self.__id =id
 		self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
@@ -117,13 +117,18 @@ class Crawling():
 
 if __name__ == "__main__":
 	
-	es_host="127.0.0.1"
-	es_port="9200"
+	es_host="elastic-dev-svc.dev.svc.cluster.local"; es_port="9200"
+	es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
+	es.indices.delete(index='urls', ignore=[400,404])
 
+	input_urls=[
+		"http://cassandra.apache.org/", # 찾고자 하는 url
+    	"http://archiva.apache.org/",
+   		"http://directory.apache.org/"
+    ]
+
+	for id, url in enumerate(input_urls):
+		crawling_url = Crawling(url,id+1)
+		dic = crawling_url.word_processing()
 	
-	input_url="http://archiva.apache.org/"
-	id = 1 
-	crawling_url = Crawling(input_url,id, es_host, es_port)
-	dic = crawling_url.word_processing()
-	print(dic)
     

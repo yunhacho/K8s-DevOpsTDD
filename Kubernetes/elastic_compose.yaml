@@ -48,7 +48,7 @@ spec:
             protocol: TCP
           volumeMounts:
           - name: data
-            mountPath: /usr/share/elasticsearch/deploy/data
+            mountPath: /usr/share/elasticsearch/data
           env:
             - name: cluster.name
               value: k8s-elastic
@@ -70,7 +70,7 @@ spec:
           privileged: true
         volumeMounts:
         - name: data
-          mountPath: /usr/share/elasticsearch/deploy/data
+          mountPath: /usr/share/elasticsearch/data
       - name: increase-vm-max-map
         image: busybox
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
@@ -88,7 +88,7 @@ spec:
         app: elasticsearch
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: es-deploy-storage
+      storageClassName: es-storage
       resources:
         requests:
           storage: 3Gi
@@ -96,38 +96,38 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: elastic-svc
+  name: elastic-dev-svc
   namespace: dev
   labels:
-    app: elasticsearch
+    app: elasticsearch-dev
 spec:
   type: ClusterIP
   selector:
-    app: elasticsearch
+    app: elasticsearch-dev
   ports:
-    - port: 19200
+    - port: 9200
       name: rest
-    - port: 19300
+    - port: 9300
       name: inter-node
 ---
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: es-cluster
+  name: es-dev-cluster
   namespace: dev
 spec:
-  serviceName: elasticsearch
+  serviceName: elasticsearch-dev
   replicas: 1
   selector:
     matchLabels:
-      app: elasticsearch
+      app: elasticsearch-dev
   template:
     metadata:
       labels:
-        app: elasticsearch
+        app: elasticsearch-dev
     spec:
       containers:
-        - name: elasticsearch
+        - name: elasticsearch-dev
           image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
           resources:
             limits:
@@ -152,15 +152,15 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: discovery.seed_hosts
-              value: "es-cluster-0.elasticsearch"
+              value: "es-dev-cluster-0.elasticsearch-dev"
             - name: cluster.initial_master_nodes
-              value: "es-cluster-0"
+              value: "es-dev-cluster-0"
             - name: ES_JAVA_OPTS
               value: "-Xms512m -Xmx512m"
       initContainers:
       - name: fix-permissions
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/dev/data"]
         securityContext:
           privileged: true
         volumeMounts:
@@ -180,12 +180,10 @@ spec:
   - metadata:
       name: data
       labels:
-        app: elasticsearch
+        app: elasticsearch-dev
     spec:
       accessModes: ["ReadWriteOnce"]
       storageClassName: es-dev-storage
       resources:
         requests:
           storage: 3Gi
-
-

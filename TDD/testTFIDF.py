@@ -59,3 +59,27 @@ class TestTFIDF(unittest.TestCase):
     def test_compareTF(self):
         result=self.obj.computeTF(self.words, self.frequency)
         self.assertEqual(result, self.tf_wds)
+
+    '''
+        5. Compute word-frequency from Object URL
+    '''
+    def test_compare_ObjectURL(self):
+        true={}
+        result=self.obj.compute_ObjectURL_from_ElasticSearch()
+        self.assertEqual(true, result)
+
+    '''
+        6. Compute word-frequency from comparison target URLs
+    '''
+    def test_compare_ComparisonTargetURLs(self):
+        true={}
+        result=self.obj.compute_ComparisonTargetURLs_from_ElasticSearch()
+        self.assertEqual(true, result)
+    
+    '''
+        7. Compute Top 10 words from TF-IDF computation
+    '''
+    def test_compare_Top10_words(self):
+        true={}
+        result=self.obj.compute_Top10_words()
+        self.assertEqual(true, result)
