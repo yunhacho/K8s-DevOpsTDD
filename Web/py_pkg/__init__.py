@@ -5,3 +5,5 @@ from .crawling import *
 from .dbtocsv import *
 from .MakeWordCloud import *
 from .tfidf import *
+from .tfidf_t import *
+from .es import *
