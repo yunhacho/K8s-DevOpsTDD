@@ -7,3 +7,4 @@ from .MakeWordCloud import *
 from .tfidf import *
 from .tfidf_t import *
 from .es import *
+from .consine_t import *

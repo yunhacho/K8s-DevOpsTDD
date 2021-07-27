@@ -1,5 +1,7 @@
 import math
+import os
 from elasticsearch import Elasticsearch
+from es import ES
 
 class TF_IDF():
     def __init__(self, url, entireWordFrequency):
@@ -11,12 +13,13 @@ class TF_IDF():
         return {word: frequency/float(len(wordfrequency.keys())) for word, frequency in wordfrequency.items()}
     
     def compute_IDF(self):
-        IDF={}
+        IDF={}; uniqueWord=set()
         countOfURLs=len(self.entireWordFrequency)
-        uniqueWord=set([word for url in self.entireWordFrequency.keys() for word in url.keys()])
+        for url in self.entireWordFrequency.values(): uniqueWord.update(list(url.keys()))
         for word in uniqueWord:
             countOfWord=0
-            for url in self.entireWordFrequency.keys(): if word in url.keys(): countOfWord+=1
+            for url in self.entireWordFrequency.values(): 
+                if word in url.keys(): countOfWord+=1
             IDF[word]=math.log(countOfURLs/float(countOfWord))
         return IDF
 
@@ -28,3 +31,11 @@ class TF_IDF():
         TFIDF=self.compute_TFIDF()
         TFIDF=sorted(TFIDF.items(), reverse=True, key=lambda item: item[1])
         return TFIDF[:10]
+
+if __name__=="__main__":
+    url = "http://cassandra.apache.org/"
+    host=os.environ['ELASTICSEARCH_URL']; port='9200'
+    es=ES(host, port)
+    entireWordFrequency=es.get_wordfrequency_by_url()
+    tf=TF_IDF(url, entireWordFrequency)
+    print(tf.compute_IDF())
