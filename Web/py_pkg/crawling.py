@@ -13,10 +13,8 @@ from elasticsearch import Elasticsearch
 import json
 import time
 
-
-
 class Crawling():
-	def __init__(self, input_url,id,es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
+	def __init__(self, input_url,id,es_host, es_port):
 		self.__input_url = input_url
 		self.__id =id
 		self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
@@ -82,8 +80,7 @@ class Crawling():
     
 	def word_processing(self):
 
-		start = self.process_timer()		
-		#urladdress = 'u'+'\''+url.strip()+'\''		
+		start = self.process_timer()			
 		urladdress = self.__input_url.strip()		
 		ress = requests.get(urladdress)	
 		html = BeautifulSoup(ress.content, "html.parser")
@@ -108,9 +105,6 @@ class Crawling():
 		e = json.dumps(dic)
 		res = self.es.index(index='urls', doc_type='url',id=self.__id, body=e)
 	
-		#words.clear()
-		#frequencies.clear()
-		#word_d.clear()
 		print(res)
 		return dic2
     

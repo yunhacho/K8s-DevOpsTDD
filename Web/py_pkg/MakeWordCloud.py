@@ -2,9 +2,10 @@
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from elasticsearch import Elasticsearch
+import os
 
 class Word_Cloud():
-    def __init__(self, url, es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
+    def __init__(self, url, es_host, es_port):
         self.url=url
         self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
         self.word_d={}
@@ -30,8 +31,7 @@ class Word_Cloud():
         return word_cloud
     
 if __name__ =="__main__":
-    es_host="127.0.0.1"
-    es_port="9200"
+    es_host=os.environ['ELASTICSEARCH_URL']; es_port='9200'
     url ="http://directory.apache.org/"
 
     wc=Word_Cloud(url, es_host, es_port)

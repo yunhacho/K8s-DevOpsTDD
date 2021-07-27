@@ -1,91 +1,44 @@
-#!/usr/bin/python
-
 import sys
-from elasticsearch import Elasticsearch
+import os
 import numpy as np
+#from es import ES
 
-class Url_Similarity():
-    
-    def __init__(self, url, es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
+class Cosine_Similarity():
+    def __init__(self, url, entireWordFrequency):
         self.url=url
-        self.id=0
-        self.size=0
-        self.word_list=[]
-        self.word_d={}
-        self.other_d={}
-        self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
+        self.entireWordFrequency=entireWordFrequency
+        self.wordFrequency=entireWordFrequency[url]
     
-    def SetUrl(self, url):
-        self.url=url
+    def get_Top3_cosine_similarity_url(self):
+        entire_cosine_similarity=self.get_all_cosine_similarity()
+        result=sorted(entire_cosine_similarity.items(), reverse=True, key=lambda item: item[1])        
+        return result[0:3]
 
-    def Process_Own_Sentence(self):
-        query ={"query":{"bool":{"must":{"match":{"url": self.url}}}},
-            "_source":["url", "words", "frequencies"]}
-        result=self.es.search(index="urls", body=query, size=1)
+    def get_all_cosine_similarity(self):
+        return {url:self.compute_cosinesimilarity(url) for url in self.entireWordFrequency.keys() if url!=self.url}
 
-        self.size=result['hits']['total']['value']
-    
-        for res in result['hits']['hits']:
-            self.id=res['_id']
-            self.word_list=res['_source']['words']
-            freq=res['_source']['frequencies']
-           
-        for idx in range(0, len(self.word_list)):
-            self.word_d[self.word_list[idx]]=freq[idx]
-    
-    def AllProcess(self):
-        cos_dic={}
-        self.Process_Own_Sentence()
-        query={ "query":{"bool":{"must":[{"match_all":{}}],
-            "must_not":[{"match": {"id": str(self.id)}}]}}, "size": str(self.size)}
-        result=self.es.search(index="urls", body=query)
-    
-        for res in result["hits"]["hits"]:
-            other_url=res['_source']['url']
-            if(other_url==self.url):
-                continue
-            other_word=res['_source']['words']
-            other_freq=res['_source']['frequencies']
-            
-            self.Process_Other_Sentence(other_word, other_freq)
-            cos=self.CosineSimilarity(other_word)
-            cos_dic[other_url]=cos
-        return cos_dic
-    
-    def GetTop3(self):
-        cos_dic=self.AllProcess()
-        cos_list=sorted(cos_dic.items(), reverse=True, key=lambda item: item[1])        
-        return cos_list[0:3]
+    def compute_cosinesimilarity(self, other_url):
+        self_vector, other_vector=self.make_vector(other_url)
+        dotpro=np.dot(self_vector,other_vector)
+        return dotpro/(np.linalg.norm(self_vector)*np.linalg.norm(other_vector))
+
+    def make_vector(self, other_url):
+        other_wordfreq=self.entireWordFrequency[other_url] 
+        sef_of_words=list(set().union(self.wordFrequency.keys(), self.entireWordFrequency[other_url].keys()))
         
-    def Process_Other_Sentence(self, other_word, other_freq):
-        self.other_d=self.word_d.copy()
-        
-        for idx in range(0, len(other_word)):
-            self.other_d[other_word[idx]]=other_freq[idx]
-    
-    def CosineSimilarity(self, other_word):
-        v1=self.Make_Vector(self.word_list)
-        v2=self.Make_Vector(other_word)
-
-        dotpro=np.dot(v1,v2)
-        cossimil=dotpro/(np.linalg.norm(v1)*np.linalg.norm(v2))
-
-        return cossimil
-
-    def Make_Vector(self, other_word):
-        v=[]
-        for w in self.other_d.keys():
-            val=0
-            for t in other_word:
-                if w==t:
-                    val+=1
-            v.append(val)
-        return v
+        self_vector=[0]*len(sef_of_words); other_vector=[0]*len(sef_of_words)
+        for idx, word in enumerate(sef_of_words):
+            if word in self.wordFrequency.keys(): self_vector[idx]= self.wordFrequency[word]
+            if word in other_wordfreq.keys(): other_vector[idx]=other_wordfreq[word]
+        return self_vector, other_vector
 
 if __name__ =="__main__":
-
-        url = "http://cassandra.apache.org/"
-        URL = Url_Similarity(url)
-        for tup in URL.GetTop3():
-             print("url: %-30s\tCosineSimilarity: %.10f" %(tup[0], tup[1]))
-
+        es_host=os.environ['ELASTICSEARCH_URL']; es_port='9200'
+        url = "http://hive.apache.org/"
+        es=ES(es_host, es_port)
+        entireWordFrequency=es.get_wordfrequency_by_url()
+        for url in entireWordFrequency.keys():
+            cos = Cosine_Similarity(url, entireWordFrequency)
+            for url, cos in cos.get_all_cosine_similarity().items():
+                print(url, cos)
+            

@@ -15,11 +15,16 @@ import os
 
 from py_pkg.tfidf import TF_IDF
 from py_pkg.crawling import Crawling
-from py_pkg.cosinesimilarity import Url_Similarity
+from py_pkg.cosinesimilarity import Cosine_Similarity
 from py_pkg.dbtocsv import ToCsv
+from py_pkg.es import ES
+from elasticsearch import Elasticsearch
 
-es_port='9200'
-es_host=os.environ['ELASTICSEARCH_URL']
+
+es_host=os.environ['ELASTICSEARCH_URL']; es_port='9200'
+es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
+es.indices.delete(index='urls', ignore=[400,404])
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -45,11 +50,12 @@ def tfidfAnalysis() :
     error = None
     if request.method == 'GET' :
         url = request.args.get('url')
-        # print("url : " + url)
-        tf=TF_IDF(url, es_host, es_port)
-        lstWord=[]
-        lstPercent = []
-        top10=tf.GetTop10()
+        Elastic=ES(es_host, es_port)
+        entire_wordfreq=Elastic.get_wordfrequency_by_url()
+        tf=TF_IDF(url, entire_wordfreq)
+
+        lstWord=[]; lstPercent = []
+        top10=tf.get_Top10_TFIDF_words()
         for word in top10:
             lstWord.append(word[0])
             lstPercent.append(word[1])
@@ -65,10 +71,12 @@ def cosineSimilariyAnaylsis() :
     error = None
     if request.method == 'GET':
         url = request.args.get('url')
-        cs=Url_Similarity(url, es_host, es_port)
-        url_lst=[]
-        sm_lst=[]
-        top3=cs.GetTop3()
+        Elastic=ES(es_host, es_port)
+        entire_wordfreq=Elastic.get_wordfrequency_by_url()
+        cs=Cosine_Similarity(url, entire_wordfreq)
+
+        url_lst=[]; sm_lst=[]
+        top3=cs.get_Top3_cosine_similarity_url()
         for url in top3:
             url_lst.append(url[0])
             sm_lst.append(url[1])

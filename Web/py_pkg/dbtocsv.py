@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 
 class ToCsv():
     
-    def __init__(self, filename, es_host="elastic-dev-svc.dev.svc.cluster.local", es_port="9200"):
+    def __init__(self, filename, es_host, es_port):
         self.es=Elasticsearch([{'host':es_host, 'port':es_port}], timeout=30)
         self.url_list=[]
         self.word_list=[]
@@ -60,7 +60,8 @@ class ToCsv():
 
 if __name__=="__main__":
 
-    inst=ToCsv( "./static/csv/db.csv")
+    es_host="elastic-dev-svc.dev.svc.cluster.local"; es_port="9200"
+    inst=ToCsv( "./static/csv/db.csv", es_host, es_port)
     df=inst.toCsv()
     print(df)
 
