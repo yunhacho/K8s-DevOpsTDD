@@ -1,44 +1,28 @@
-import sys
-import os
 import numpy as np
-#from es import ES
-
-class Cosine_Similarity():
-    def __init__(self, url, entireWordFrequency):
-        self.url=url
-        self.entireWordFrequency=entireWordFrequency
-        self.wordFrequency=entireWordFrequency[url]
-    
-    def get_Top3_cosine_similarity_url(self):
-        entire_cosine_similarity=self.get_all_cosine_similarity()
-        result=sorted(entire_cosine_similarity.items(), reverse=True, key=lambda item: item[1])        
-        return result[0:3]
-
-    def get_all_cosine_similarity(self):
-        return {url:self.compute_cosinesimilarity(url) for url in self.entireWordFrequency.keys() if url!=self.url}
-
-    def compute_cosinesimilarity(self, other_url):
-        self_vector, other_vector=self.make_vector(other_url)
-        dotpro=np.dot(self_vector,other_vector)
-        return dotpro/(np.linalg.norm(self_vector)*np.linalg.norm(other_vector))
-
-    def make_vector(self, other_url):
-        other_wordfreq=self.entireWordFrequency[other_url] 
-        sef_of_words=list(set().union(self.wordFrequency.keys(), self.entireWordFrequency[other_url].keys()))
+class CosineSimilarity():
+    def get_CosineSimilarity(self, document_1, document_2):
+        vector_1, vector_2= self.make_vector(document_1, document_2)
+        dot=np.dot(vector_1, vector_2)
+        return dot/(np.linalg.norm(vector_1)*np.linalg.norm(vector_2))
         
-        self_vector=[0]*len(sef_of_words); other_vector=[0]*len(sef_of_words)
-        for idx, word in enumerate(sef_of_words):
-            if word in self.wordFrequency.keys(): self_vector[idx]= self.wordFrequency[word]
-            if word in other_wordfreq.keys(): other_vector[idx]=other_wordfreq[word]
-        return self_vector, other_vector
+    def make_vector(self, target, compare):
+        words_in_target=target.keys()
+        words_only_in_compare=compare.keys()-words_in_target
 
-if __name__ =="__main__":
-        es_host=os.environ['ELASTICSEARCH_URL']; es_port='9200'
-        url = "http://hive.apache.org/"
-        es=ES(es_host, es_port)
-        entireWordFrequency=es.get_wordfrequency_by_url()
-        for url in entireWordFrequency.keys():
-            cos = Cosine_Similarity(url, entireWordFrequency)
-            for url, cos in cos.get_all_cosine_similarity().items():
-                print(url, cos)
-            
+        target_vector=list(target.values())
+        target_vector.extend([0]*len(words_only_in_compare))
+
+        compare_vector=[0]*len(words_in_target)
+        for i, word in enumerate(words_in_target): 
+            if word in compare.keys(): compare_vector[i]=compare[word] 
+        compare_vector.extend([compare[word] for word in words_only_in_compare])
+        
+        return target_vector, compare_vector
+
+    def get_Top3_ConsineSimilarity(self, url, documents):
+        try:
+            cosinesimilarity={other:self.get_CosineSimilarity(documents[url], documents[other]) for other in documents.keys() if url!=other}
+            return sorted(cosinesimilarity.items(), reverse=True, key=lambda item: item[1])[0:3]
+        except KeyError as e:
+            return []
+

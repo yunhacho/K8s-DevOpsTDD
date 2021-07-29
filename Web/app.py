@@ -15,7 +15,7 @@ import os
 
 from py_pkg.tfidf import TF_IDF
 from py_pkg.crawling import Crawling
-from py_pkg.cosinesimilarity import Cosine_Similarity
+from py_pkg.cosinesimilarity import CosineSimilarity
 from py_pkg.dbtocsv import ToCsv
 from py_pkg.es import ES
 from elasticsearch import Elasticsearch
@@ -73,10 +73,11 @@ def cosineSimilariyAnaylsis() :
         url = request.args.get('url')
         Elastic=ES(es_host, es_port)
         entire_wordfreq=Elastic.get_wordfrequency_by_url()
-        cs=Cosine_Similarity(url, entire_wordfreq)
+        #cs=Cosine_Similarity(url, entire_wordfreq)
 
         url_lst=[]; sm_lst=[]
-        top3=cs.get_Top3_cosine_similarity_url()
+        #top3=cs.get_Top3_cosine_similarity_url()
+        top3=CosineSimilarity().get_Top3_ConsineSimilarity(url, entire_wordfreq)
         for url in top3:
             url_lst.append(url[0])
             sm_lst.append(url[1])
