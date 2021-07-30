@@ -41,13 +41,26 @@ podTemplate(
 				}
 			}
 
-			stage( "Deploy to Cluster" ) {
+			stage( "Deploy to cluster" ) {
 				container("helm") {
-                    sh "helm repo add github-test https://yunhacho.github.io/helm-charts/"
-                    sh "helm repo update"
-                    sh "helm install webapp github-test/test --namespace deploy"
+					boolean isExist = false
+					
+					//====== 이미 설치된 chart 인지 검사 =============
+					String out = sh script: "helm ls -q --namespace deploy", returnStdout: true
+					if(out.contains("webapp")) isExist = true
+					sh "helm repo add github-test https://yunhacho.github.io/helm-charts/"
+					sh "helm repo update"
+					//===========================				
+					if (isExist) {
+						echo "Already installed. I will upgrade it with chart file."
+						sh "helm upgrade webapp github-test/test --namespace deploy"					
+					} else {
+						echo "Install with chart file !"
+						sh "helm install webapp github-test/test --namespace deploy"					
+					}
 				}
 			}
+
 		}
 		catch(e) {
 			currentBuild.result = "FAILED"
