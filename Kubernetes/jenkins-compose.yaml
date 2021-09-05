@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: jenkins
+  namespace: jenkins
 spec:
   serviceName: jenkins
   replicas: 1
@@ -34,6 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins
+  namespace: jenkins
 spec:
   type: NodePort
   ports:
@@ -47,6 +49,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jenkins-jnlp
+  namespace: jenkins
 spec:
   type: ClusterIP
   ports:
