@@ -48,15 +48,15 @@ podTemplate(
 					//====== 이미 설치된 chart 인지 검사 =============
 					String out = sh script: "helm ls -q --namespace deploy", returnStdout: true
 					if(out.contains("webapp")) isExist = true
-					sh "helm repo add github-test https://yunhacho.github.io/helm-charts/"
+					sh "helm repo add github-webanalysis https://yunhacho.github.io/helm-charts/"
 					sh "helm repo update"
 					//===========================				
 					if (isExist) {
 						echo "Already installed. I will upgrade it with chart file."
-						sh "helm upgrade webapp github-test/test --namespace deploy"					
+						sh "helm upgrade webapp github-webanalysis/webanalysis --namespace deploy"					
 					} else {
 						echo "Install with chart file !"
-						sh "helm install webapp github-test/test --namespace deploy"					
+						sh "helm install webapp github-webanalysis/webanalysis --namespace deploy"					
 					}
 				}
 			}

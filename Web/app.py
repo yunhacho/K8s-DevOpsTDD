@@ -73,10 +73,7 @@ def cosineSimilariyAnaylsis() :
         url = request.args.get('url')
         Elastic=ES(es_host, es_port)
         entire_wordfreq=Elastic.get_wordfrequency_by_url()
-        #cs=Cosine_Similarity(url, entire_wordfreq)
-
         url_lst=[]; sm_lst=[]
-        #top3=cs.get_Top3_cosine_similarity_url()
         top3=CosineSimilarity().get_Top3_ConsineSimilarity(url, entire_wordfreq)
         for url in top3:
             url_lst.append(url[0])
